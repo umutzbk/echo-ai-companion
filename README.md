@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.png" alt="Echo: privacy-first AI reflection companion"></p>
+
 # Echo — privacy-first AI reflection companion (MVP)
 
 > "Stop overthinking your messages. Talk it through with an AI that actually knows the context."
@@ -25,6 +27,10 @@ apps/mobile       Expo (React Native) app. Local SQLite store keeps raw messages
 Raw messages live **on the device**. The server stores only derived **memories/summaries**.
 Cloud LLM calls happen only when **Cloud Analysis = ON** and **Privacy Mode = OFF**, and send
 only the minimal selected context — never the whole transcript. No training on user data.
+
+<p align="center"><img src="assets/privacy-architecture.png" alt="Data flow: import, parse and store on the phone; only with Cloud Analysis on does a question and a recent slice reach the safety-gated server, which stores summaries only" width="100%"></p>
+
+<p align="center"><img src="assets/safety-routing.png" alt="Safety routing: self-harm, crisis and abuse get a safe template; monitoring, manipulation and diagnosis requests are reframed; ordinary reflection goes to the model" width="100%"></p>
 
 ## Prerequisites
 
