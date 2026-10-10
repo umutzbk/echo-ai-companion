@@ -1,0 +1,116 @@
+// Echo server schema.
+// Privacy stance: the server stores PERSON MEMORY + SUMMARIES, never the full raw
+// transcript by default. Raw Message rows live on the device. (A Message model is NOT
+// included here on purpose.)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  // Per-user settings: { cloudAnalysis, privacyMode, modelTier, region }
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  persons      Person[]
+  safetyEvents SafetyEvent[]
+  auditLogs    AuditLog[]
+}
+
+model Person {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  relationshipType String
+  notes            String?
+  createdAt        DateTime @default(now())
+
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imports   ImportMeta[]
+  memories  PersonMemory[]
+  summaries ConversationSummary[]
+
+  @@index([userId])
+}
+
+// Metadata about an import. The actual messages are NOT stored server-side by default.
+model ImportMeta {
+  id           String   @id @default(cuid())
+  personId     String
+  source       String // whatsapp | instagram | screenshot | paste
+  fileName     String?
+  messageCount Int      @default(0)
+  rangeStart   DateTime?
+  rangeEnd     DateTime?
+  createdAt    DateTime @default(now())
+
+  person   Person                @relation(fields: [personId], references: [id], onDelete: Cascade)
+  summaries ConversationSummary[]
+
+  @@index([personId])
+}
+
+model PersonMemory {
+  id         String   @id @default(cuid())
+  personId   String
+  kind       String // summary | tone | pattern | unresolved | positive | stress
+  content    String
+  confidence Float    @default(0.5)
+  evidence   Json     @default("[]") // [{ messageId?, quote }]
+  model      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId])
+}
+
+model ConversationSummary {
+  id         String   @id @default(cuid())
+  importId   String
+  personId   String
+  summary    String
+  highlights Json     @default("[]")
+  createdAt  DateTime @default(now())
+
+  import ImportMeta @relation(fields: [importId], references: [id], onDelete: Cascade)
+  person Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId])
+  @@index([importId])
+}
+
+// Safety events store the CATEGORY only — never the raw user text.
+model SafetyEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String
+  severity  String
+  action    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Audit log holds redacted, non-sensitive metadata only.
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  event     String
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

@@ -1,0 +1,23 @@
+# Local Postgres for Echo. Host port 5433 -> container 5432 (5432 left free for any
+# native Postgres). Data persists in the named volume `echo_pgdata`.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: echo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: echo
+      POSTGRES_PASSWORD: echo
+      POSTGRES_DB: echo
+    ports:
+      - "5433:5432"
+    volumes:
+      - echo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U echo -d echo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  echo_pgdata:

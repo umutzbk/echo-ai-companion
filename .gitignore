@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.expo/
+.env
+*.log
+.DS_Store
+apps/server/prisma/migrations/dev.db*
+coverage/
+
+# Personal chat exports stay out of version control (privacy-first).
+exports/
+

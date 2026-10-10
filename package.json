@@ -1,0 +1,25 @@
+{
+  "name": "echo-companion",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Privacy-first AI reflection companion — MVP monorepo",
+  "workspaces": [
+    "packages/*",
+    "apps/server",
+    "apps/mobile"
+  ],
+  "scripts": {
+    "build": "npm run build -w @echo/core && npm run build -w @echo/server",
+    "test": "npm run test -w @echo/core",
+    "dev:server": "npm run dev -w @echo/server",
+    "mobile": "npm run start -w @echo/mobile"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "comment": "overrides pin a single React version (SDK 54 = 19.1.0) so RN and app code share one React instance (avoids 'Invalid hook call').",
+  "overrides": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
